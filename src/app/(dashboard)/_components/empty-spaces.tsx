@@ -10,7 +10,7 @@ import { toast } from "sonner";
 export const EmptyBoards = () => {
     const { organization } = useOrganization();
     // const mutate = useMutation(api.board.create);
-    const { mutate, pending } = useApiMutation(api.board.create);
+    const { mutate, pending } = useApiMutation(api.space.create);
 
     const onClick = () => {
         if (!organization) {

@@ -68,7 +68,7 @@ export const CompanySidebar = () => {
                 >
                     <Link href={"/"}>
                         <LayoutDashboard className="h-4 w-4 mr-2" />
-                        Team boards
+                        Team spaces
                     </Link>
                 </Button>
                 <Button asChild
@@ -81,7 +81,7 @@ export const CompanySidebar = () => {
                         query: { favorites: true }
                     }}>
                         <Star className="h-4 w-4 mr-2" />
-                        Favorite boards
+                        Favorite spaces
                     </Link>
                 </Button>
             </div>
