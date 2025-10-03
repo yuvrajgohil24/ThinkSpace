@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 
 import { useApiMutation } from "@/hooks/use-api-mutation";
 import { api } from "../../../../convex/_generated/api";
@@ -13,7 +14,7 @@ interface NewSpaceButtonProps {
 }
 
 export const NewSpaceButton = ({ orgId, disabled }: NewSpaceButtonProps) => {
-
+    const router = useRouter();
     const { mutate, pending } = useApiMutation(api.space.create);
 
     const handleClick = () => {
@@ -22,6 +23,7 @@ export const NewSpaceButton = ({ orgId, disabled }: NewSpaceButtonProps) => {
             title: "Untitled"
         }).then((id) => {
             toast.success("Space created")
+            router.push(`/space/${id}`)
         }).catch(() => toast.error("Failed to create the space"))
     }
 

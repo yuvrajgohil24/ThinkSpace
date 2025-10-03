@@ -1,13 +1,15 @@
 import Image from "next/image";
 import { useMutation } from "convex/react";
 import { useOrganization } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { api } from "../../../../convex/_generated/api";
 import { useApiMutation } from "@/hooks/use-api-mutation";
 import { toast } from "sonner";
 
-export const EmptyBoards = () => {
+export const EmptySpaces = () => {
+    const router = useRouter();
     const { organization } = useOrganization();
     // const mutate = useMutation(api.board.create);
     const { mutate, pending } = useApiMutation(api.space.create);
@@ -22,6 +24,7 @@ export const EmptyBoards = () => {
             title: "Untitled"
         }).then((id) => {
             toast.success("Space created")
+            router.push(`/space/${id}`)
         }).catch(() => toast.error("Failed in creating space"));
     }
 

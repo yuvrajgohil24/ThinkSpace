@@ -4,7 +4,7 @@ import { useQuery } from "convex/react";
 
 import { api } from "../../../../convex/_generated/api";
 
-import { EmptyBoards } from "./empty-spaces";
+import { EmptySpaces } from "./empty-spaces";
 import { EmptyFavorites } from "./empty-favorites";
 import { EmptySearch } from "./empty-search";
 import { SpaceCard } from "./space-card";
@@ -20,7 +20,9 @@ interface ThinkSpaceListProps {
 
 export const ThinkSpaceList = ({ orgId, query }: ThinkSpaceListProps) => {
     // const data = [];
-    const data = useQuery(api.spaces.get, { orgId });
+    const data = useQuery(api.spaces.get, { orgId, ...query });
+
+    console.log("DATA--->", data)
 
     if (data === undefined) {
         return (
@@ -57,7 +59,7 @@ export const ThinkSpaceList = ({ orgId, query }: ThinkSpaceListProps) => {
 
     if (!data?.length) {
         return (
-            <EmptyBoards />
+            <EmptySpaces />
         )
     }
 
@@ -80,7 +82,7 @@ export const ThinkSpaceList = ({ orgId, query }: ThinkSpaceListProps) => {
                         authorName={space.authorName}
                         createdAt={space._creationTime}
                         orgId={space.orgId}
-                        isFavorite={false}
+                        isFavorite={space.isFavorite}
                     />
                 ))}
             </div>

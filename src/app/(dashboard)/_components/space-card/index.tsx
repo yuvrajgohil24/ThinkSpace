@@ -8,9 +8,13 @@ import { MoreHorizontal } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { SpaceActions } from "@/components/actions";
+import { useApiMutation } from "@/hooks/use-api-mutation";
 
 import { Overlay } from "./overlay";
 import { Footer } from "./footer";
+import { api } from "../../../../../convex/_generated/api";
+import { toast } from "sonner";
+import { useMutation } from "convex/react";
 
 interface SpaceCardProps {
     id: string;
@@ -30,6 +34,26 @@ export const SpaceCard = ({ id, title, authorName, authorId, createdAt, imageUrl
     const createdAtLabel = formatDistanceToNow(createdAt, {
         addSuffix: true
     })
+
+    // const handleFavorite = useMutation(api.space.favorite);
+    // const handleUnFavorite = useMutation(api.space.unFavorite);
+
+    const {
+        mutate: onFavorite,
+        pending: pendingFavorite
+    } = useApiMutation(api.space.favorite);
+    const {
+        mutate: onUnfavorite,
+        pending: pendingUnfavorite
+    } = useApiMutation(api.space.unFavorite);
+
+    const toggleFavorite = () => {
+        if (isFavorite) {
+            onUnfavorite({ id }).catch(() => toast.error("Failed to unfavorite"))
+        } else {
+            onFavorite({ id, orgId }).catch(() => toast.error("Failed to favorite"))
+        }
+    };
 
     return (
         <Link href={`/space/${id}`}>
@@ -53,8 +77,8 @@ export const SpaceCard = ({ id, title, authorName, authorId, createdAt, imageUrl
                     title={title}
                     authorLabel={authorLabel}
                     createdAtLabel={createdAtLabel}
-                    onClick={() => { }}
-                    disabled={false}
+                    onClick={toggleFavorite}
+                    disabled={pendingFavorite || pendingUnfavorite}
                 />
             </div>
         </Link>

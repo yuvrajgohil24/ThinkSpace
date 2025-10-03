@@ -49,6 +49,19 @@ export const remove = mutation({
       throw new Error("Unauthorized!");
     }
 
+    const userId = identity.subject;
+
+    const existingFavorite = await ctx.db
+      .query("userFavorites")
+      .withIndex("by_user_space", (q) =>
+        q.eq("userId", userId).eq("spaceId", args.id)
+      )
+      .unique();
+
+    if (existingFavorite) {
+      await ctx.db.delete(existingFavorite._id);
+    }
+
     await ctx.db.delete(args.id);
   },
 });
@@ -75,6 +88,78 @@ export const update = mutation({
     const space = await ctx.db.patch(args.id, {
       title: args.title,
     });
+
+    return space;
+  },
+});
+
+export const favorite = mutation({
+  args: { id: v.id("spaces"), orgId: v.string() },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Unauthorized");
+    }
+
+    const space = await ctx.db.get(args.id);
+
+    if (!space) {
+      throw new Error("Space not found");
+    }
+
+    const userId = identity.subject;
+
+    const existingFavorite = await ctx.db
+      .query("userFavorites")
+      .withIndex("by_user_space", (q) =>
+        q.eq("userId", userId).eq("spaceId", space._id)
+      )
+      .unique();
+
+    if (existingFavorite) {
+      throw new Error("Space already favorited!");
+    }
+
+    await ctx.db.insert("userFavorites", {
+      userId,
+      spaceId: space._id,
+      orgId: args.orgId,
+    });
+
+    return space;
+  },
+});
+
+export const unFavorite = mutation({
+  args: { id: v.id("spaces") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Unauthorized");
+    }
+
+    const space = await ctx.db.get(args.id);
+
+    if (!space) {
+      throw new Error("Space not found");
+    }
+
+    const userId = identity.subject;
+
+    const existingFavorite = await ctx.db
+      .query("userFavorites")
+      .withIndex("by_user_space", (q) =>
+        q.eq("userId", userId).eq("spaceId", space._id)
+      )
+      .unique();
+
+    if (!existingFavorite) {
+      throw new Error("Favorited space not found!");
+    }
+
+    await ctx.db.delete(existingFavorite._id);
 
     return space;
   },
