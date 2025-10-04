@@ -1,4 +1,6 @@
 import { Canvas } from "./_components/canvas"
+import { Room } from "@/components/room";
+import { CanvasLoader } from "./_components/canvas-loader";
 
 interface SpaceIdPageProps {
     params: {
@@ -6,9 +8,12 @@ interface SpaceIdPageProps {
     };
 };
 
-const SpaceIdPage = ({ params }: SpaceIdPageProps) => {
+const SpaceIdPage = async ({ params }: SpaceIdPageProps) => {
+    const { spaceId } = await params;
     return (
-        <Canvas spaceId={params.spaceId} />
+        <Room roomId={spaceId} fallback={<CanvasLoader />}>
+            <Canvas spaceId={spaceId} />
+        </Room>
     )
 }
 
