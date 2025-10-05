@@ -5,6 +5,7 @@ import { createClient } from "@liveblocks/client";
 
 export const client = createClient({
   authEndpoint: "/api/liveblocks-auth",
+  throttle: 16,
   // publicApiKey: "pk_dev_5QYd3TumjJpIoKGVoWnA9chl5bKk8CW_yozKkpkcXI0dVB6t4vDXrJ6FZseVhXtG", // ⚠️ Only use Public key here
 });
 
@@ -13,7 +14,7 @@ declare global {
     // Each user's Presence, for useMyPresence, useOthers, etc.
     Presence: {
       // Example, real-time cursor coordinates
-      // cursor: { x: number; y: number };
+      cursor: { x: number; y: number } | null;
     };
 
     // The Storage tree for the room, for useMutation, useStorage, etc.

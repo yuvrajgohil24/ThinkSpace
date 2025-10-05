@@ -9,8 +9,8 @@ interface ToolButtonProps {
     label: string;
     icon: LucideIcon;
     onClick: () => void;
-    isActive: boolean;
-    isDisabled: boolean;
+    isActive?: boolean;
+    isDisabled?: boolean;
 };
 
 export const ToolButton = ({ label, icon: Icon, onClick, isActive, isDisabled }: ToolButtonProps) => {
