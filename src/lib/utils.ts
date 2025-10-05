@@ -1,4 +1,4 @@
-import { Camera } from "@/types/canvas";
+import { Camera, Color } from "@/types/canvas";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -10,6 +10,16 @@ export function cn(...inputs: ClassValue[]) {
 
 export function connectionIdToColor(connectionId: number): string {
   return COLORS[connectionId % COLORS.length];
+}
+
+export function rgbToHex(color: Color) {
+  const { r, g, b } = color;
+  return (
+    "#" +
+    r.toString(16).padStart(2, "0") +
+    g.toString(16).padStart(2, "0") +
+    b.toString(16).padStart(2, "0")
+  ).toUpperCase();
 }
 
 export function pointerEventToCanvasPoint(
