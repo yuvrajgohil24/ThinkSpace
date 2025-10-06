@@ -15,6 +15,7 @@ import { LiveObject } from "@liveblocks/client";
 import { useCanRedo, useCanUndo, useHistory, useMutation, useOthersMapped, useStorage } from "@liveblocks/react";
 import { Camera, CanvasMode, CanvasState, Color, direction_and_size, LayerType, Point, Side } from "@/types/canvas";
 import { connectionIdToColor, pointerEventToCanvasPoint, resizeBounds } from "@/lib/utils";
+import { SelectionTools } from "./selection-tools";
 
 interface CanvasProps {
     spaceId: string;
@@ -30,7 +31,7 @@ export const Canvas = ({ spaceId }: CanvasProps) => {
         mode: CanvasMode.None
     });
     const [camera, setCamera] = useState<Camera>({ x: 0, y: 0 });
-    const [lastColor, SetLastColor] = useState<Color>({ r: 0, g: 0, b: 0 });
+    const [lastColor, setLastColor] = useState<Color>({ r: 0, g: 0, b: 0 });
 
     const layerIds = useStorage((root) => root.layerIds);
 
@@ -240,6 +241,10 @@ export const Canvas = ({ spaceId }: CanvasProps) => {
                 canUndo={canUndo}
                 undo={history.undo}
                 redo={history.redo}
+            />
+            <SelectionTools
+                camera={camera}
+                setLastColor={setLastColor}
             />
             <svg
                 className="h-[100vh] w-[100vw]"

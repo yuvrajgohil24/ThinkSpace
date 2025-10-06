@@ -39,9 +39,9 @@ export async function POST(request: Request) {
 //     userOrgId: authorization.orgId,
 //   });
 
-  // if (space?.orgId !== authorization.orgId) {
-  //   return new Response("Unauthorized", { status: 403 });
-  // }
+  if (space?.orgId !== authorization.orgId) {
+    return new Response("Unauthorized", { status: 403 });
+  }
 
   const userInfo = {
     name: user.firstName || "Teammate",
