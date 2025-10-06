@@ -66,6 +66,35 @@ export const Canvas = ({ spaceId }: CanvasProps) => {
         setCanvasState({ mode: CanvasMode.None });
     }, [lastColor]);
 
+    // <---------------- TRANSLATING THE SELECTED LAYERS ---------------->
+    const translateSelectedLayers = useMutation(({ storage, self }, point: Point) => {
+        if (canvasState.mode !== CanvasMode.Translating) {
+            return;
+        }
+
+        const offset = {
+            x: point.x - canvasState.current.x,
+            y: point.y - canvasState.current.y,
+        }
+
+        const liveLayers = storage.get("layers");
+
+        for (const id of self.presence.selection) {
+            const layer = liveLayers.get(id)
+
+            if (layer) {
+                layer.update({
+                    x: layer.get("x") + offset.x,
+                    y: layer.get("y") + offset.y
+                })
+            }
+        }
+
+        setCanvasState({ mode: CanvasMode.Translating, current: point });
+    }, [canvasState])
+
+
+    // <---------------- RESIZE THE SELECTED LAYERS --------------------->
     const resizeSelectedLayer = useMutation(({ storage, self }, point: Point) => {
         if (canvasState.mode !== CanvasMode.Resizing) {
             return;
@@ -80,6 +109,14 @@ export const Canvas = ({ spaceId }: CanvasProps) => {
             layer.update(bounds);
         };
     }, [canvasState]);
+
+    // <---------------- UNSELECT THE SELECTED LAYERS --------------------->
+    const unselectedLayers = useMutation(({ self, setMyPresence }) => {
+        if (self.presence.selection.length > 0) {
+            setMyPresence({ selection: [] }, { addToHistory: true });
+        }
+    }, []);
+
 
     const onLayerPointerDown = useMutation((
         { self, setMyPresence },
@@ -114,7 +151,11 @@ export const Canvas = ({ spaceId }: CanvasProps) => {
     const onPointerUp = useMutation(({ }, e) => {
         const point = pointerEventToCanvasPoint(e, camera);
 
-        if (canvasState.mode === CanvasMode.Inserting) {
+        if (canvasState.mode === CanvasMode.None || canvasState.mode === CanvasMode.Pressing) {
+            unselectedLayers();
+
+            setCanvasState({ mode: CanvasMode.None })
+        } else if (canvasState.mode === CanvasMode.Inserting) {
             insertLayer(canvasState.layerType, point);
         } else {
             setCanvasState({
@@ -123,7 +164,19 @@ export const Canvas = ({ spaceId }: CanvasProps) => {
         }
 
         history.resume();
-    }, [camera, canvasState, history, insertLayer]);
+    }, [camera, canvasState, history, insertLayer, unselectedLayers]);
+
+    const onPointerDown = useCallback((e: React.PointerEvent) => {
+        const point = pointerEventToCanvasPoint(e, camera);
+
+        if (canvasState.mode === CanvasMode.Inserting) {
+            return;
+        }
+
+        // Add case for drawing
+
+        setCanvasState({ origin: point, mode: CanvasMode.Pressing });
+    }, [camera, canvasState.mode, setCanvasState]);
 
     const onPointerMove = useMutation(({ setMyPresence }, e: React.PointerEvent) => {
         e.preventDefault();
@@ -131,7 +184,13 @@ export const Canvas = ({ spaceId }: CanvasProps) => {
         // const current = { x: 0, y: 0 }
         const current = pointerEventToCanvasPoint(e, camera);
 
-        if (canvasState.mode === CanvasMode.Resizing) {
+        // <---------------------- CanvasMode === TRANSLATING -------------------------->
+        if (canvasState.mode === CanvasMode.Translating) {
+            translateSelectedLayers(current)
+        }
+
+        //<----------------------- CanvasMode === RESIZING ----------------------------->
+        else if (canvasState.mode === CanvasMode.Resizing) {
             resizeSelectedLayer(current);
         }
 
@@ -143,8 +202,6 @@ export const Canvas = ({ spaceId }: CanvasProps) => {
     }, []);
 
     // <------------ RESIZING FUNCTIONALITY ----------->
-
-
 
     const onResizeHandlePointerDown = useCallback((corner: Side, initialBounds: direction_and_size) => {
         // console.log({ corner, initialBounds })
@@ -190,6 +247,7 @@ export const Canvas = ({ spaceId }: CanvasProps) => {
                 onPointerMove={onPointerMove}
                 onPointerLeave={onPointerLeave}
                 onPointerUp={onPointerUp}
+                onPointerDown={onPointerDown}
             >
                 <g style={{
                     transform: `translate(${camera.x}px, ${camera.y}px)`
