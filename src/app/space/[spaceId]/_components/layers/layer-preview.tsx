@@ -7,6 +7,8 @@ import { Rectangle } from "./rectangle-layer";
 import { Ellipse } from "./ellipse-layer";
 import { Text } from "./text-layer";
 import { Note } from "./stickyNotes-layer";
+import { Path } from "./path-layer";
+import { rgbToHex } from "@/lib/utils";
 
 interface LayerPreviewProps {
     id: string;
@@ -57,6 +59,19 @@ export const LayerPreview = memo(({ id, onLayerPointerDown, selectionColor }: La
                     layer={layer}
                     onPointerDown={onLayerPointerDown}
                     selectionColor={selectionColor}
+                />
+            )
+
+        case LayerType.Path:
+            return (
+                <Path
+                    key={id}
+                    points={layer.points}
+                    onPointerDown={(e) => onLayerPointerDown(e, id)}
+                    x={layer.x}
+                    y={layer.y}
+                    fill={layer.fill ? rgbToHex(layer.fill) : "#000"}
+                    stroke={selectionColor}
                 />
             )
 
