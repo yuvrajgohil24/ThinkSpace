@@ -4,6 +4,9 @@ import { LayerType } from "@/types/canvas";
 import { useStorage } from "@liveblocks/react";
 import { memo } from "react";
 import { Rectangle } from "./rectangle-layer";
+import { Ellipse } from "./ellipse-layer";
+import { Text } from "./text-layer";
+import { Note } from "./stickyNotes-layer";
 
 interface LayerPreviewProps {
     id: string;
@@ -28,6 +31,35 @@ export const LayerPreview = memo(({ id, onLayerPointerDown, selectionColor }: La
                     selectionColor={selectionColor}
                 />
             );
+        case LayerType.Ellipse:
+            return (
+                <Ellipse
+                    id={id}
+                    layer={layer}
+                    onPointerDown={onLayerPointerDown}
+                    selectionColor={selectionColor}
+                />
+            )
+
+        case LayerType.Text:
+            return (
+                <Text
+                    id={id}
+                    layer={layer}
+                    onPointerDown={onLayerPointerDown}
+                    selectionColor={selectionColor}
+                />
+            )
+        case LayerType.Note:
+            return (
+                <Note
+                    id={id}
+                    layer={layer}
+                    onPointerDown={onLayerPointerDown}
+                    selectionColor={selectionColor}
+                />
+            )
+
         default:
             console.warn("Unknown layer type!");
             return null;

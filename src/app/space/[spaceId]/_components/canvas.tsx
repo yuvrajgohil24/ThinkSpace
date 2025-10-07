@@ -14,7 +14,7 @@ import { SelectionBox } from "./selection-box";
 import { LiveObject } from "@liveblocks/client";
 import { useCanRedo, useCanUndo, useHistory, useMutation, useOthersMapped, useStorage } from "@liveblocks/react";
 import { Camera, CanvasMode, CanvasState, Color, direction_and_size, LayerType, Point, Side } from "@/types/canvas";
-import { connectionIdToColor, pointerEventToCanvasPoint, resizeBounds } from "@/lib/utils";
+import { connectionIdToColor, findIntersectingLayersWithRectangle, pointerEventToCanvasPoint, resizeBounds } from "@/lib/utils";
 import { SelectionTools } from "./selection-tools";
 
 interface CanvasProps {
@@ -118,6 +118,28 @@ export const Canvas = ({ spaceId }: CanvasProps) => {
         }
     }, []);
 
+    const updateSelectionNet = useMutation((
+        { storage, setMyPresence },
+        current: Point,
+        origin: Point
+    ) => {
+        const layers = storage.get("layers").toImmutable();
+        setCanvasState({ mode: CanvasMode.SelectionNet, origin, current });
+
+        const ids = findIntersectingLayersWithRectangle(layerIds!, layers, origin, current);
+
+        setMyPresence({ selection: ids });
+    }, [layerIds]);
+
+    const startMultiSelection = useCallback((current: Point, origin: Point) => {
+
+        // Here 5 is threshold value
+        if (Math.abs(current.x - origin.x) + Math.abs(current.y - origin.y) > 5) {
+            console.log("ATTEMPTING TO SELCTION NET")
+            setCanvasState({ mode: CanvasMode.SelectionNet, origin, current });
+        }
+    }, []);
+
 
     const onLayerPointerDown = useMutation((
         { self, setMyPresence },
@@ -185,8 +207,16 @@ export const Canvas = ({ spaceId }: CanvasProps) => {
         // const current = { x: 0, y: 0 }
         const current = pointerEventToCanvasPoint(e, camera);
 
+        if (canvasState.mode === CanvasMode.Pressing) {
+            startMultiSelection(current, canvasState.origin);
+        }
+
+        else if (canvasState.mode === CanvasMode.SelectionNet) {
+            updateSelectionNet(current, canvasState.origin)
+        }
+
         // <---------------------- CanvasMode === TRANSLATING -------------------------->
-        if (canvasState.mode === CanvasMode.Translating) {
+        else if (canvasState.mode === CanvasMode.Translating) {
             translateSelectedLayers(current)
         }
 
@@ -268,6 +298,15 @@ export const Canvas = ({ spaceId }: CanvasProps) => {
                     <SelectionBox
                         onResizeHandlePointerDown={onResizeHandlePointerDown}
                     />
+                    {canvasState.mode === CanvasMode.SelectionNet && canvasState.current != null && (
+                        <rect
+                            className="fill-blue-500/5 stroke-blue-500 stroke-1"
+                            x={Math.min(canvasState.origin.x, canvasState.current?.x)}
+                            y={Math.min(canvasState.origin.y, canvasState.current?.y)}
+                            width={Math.abs(canvasState.origin.x - canvasState.current.x)}
+                            height={Math.abs(canvasState.origin.y - canvasState.current.y)}
+                        />
+                    )}
                     <CursorsPresence />
                 </g>
             </svg>
