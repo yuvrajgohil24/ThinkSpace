@@ -10,8 +10,7 @@ import { api } from "../../../../convex/_generated/api";
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 const liveblocks = new Liveblocks({
-  secret:
-    "sk_dev_scNY98vN1CX7rvgnslky1N8zGpMB_DLRSxWV0YU6WuvSQQBXKygSYQAxTDTuCOXL",
+  secret: process.env.LIVEBLOCKS_SECRET_KEY!,
 });
 
 export async function POST(request: Request) {
@@ -19,10 +18,10 @@ export async function POST(request: Request) {
   const authorization = await auth();
   const user = await currentUser();
 
-//   console.log("AUTH INFO", {
-//     authorization,
-//     user,
-//   });
+  //   console.log("AUTH INFO", {
+  //     authorization,
+  //     user,
+  //   });
 
   if (!authorization || !user) {
     return new Response("Unauthorized", { status: 403 });
@@ -32,12 +31,12 @@ export async function POST(request: Request) {
 
   const space = await convex.query(api.space.get, { id: room });
 
-//   console.log("AUTH INFO", {
-//     room,
-//     space,
-//     spaceOrgId: space?.orgId,
-//     userOrgId: authorization.orgId,
-//   });
+  //   console.log("AUTH INFO", {
+  //     room,
+  //     space,
+  //     spaceOrgId: space?.orgId,
+  //     userOrgId: authorization.orgId,
+  //   });
 
   if (space?.orgId !== authorization.orgId) {
     return new Response("Unauthorized", { status: 403 });
@@ -48,7 +47,7 @@ export async function POST(request: Request) {
     picture: user.imageUrl!,
   };
 
-//   console.log({ userInfo });
+  //   console.log({ userInfo });
 
   // Start an auth session inside your endpoint
   const session = liveblocks.prepareSession(user.id, { userInfo });
@@ -59,6 +58,6 @@ export async function POST(request: Request) {
 
   // Authorize the user and return the result
   const { status, body } = await session.authorize();
-//   console.log({ status, body }, "ALLOWED");
+  //   console.log({ status, body }, "ALLOWED");
   return new Response(body, { status });
 }
