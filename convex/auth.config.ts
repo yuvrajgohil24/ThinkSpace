@@ -1,7 +1,7 @@
 export default {
   providers: [
     {
-      domain: process.env.CLERK_JWT_ISSUER_DOMAIN!,
+      domain: "https://oriented-zebra-77.clerk.accounts.dev",
       applicationID: "convex",
     },
   ],
