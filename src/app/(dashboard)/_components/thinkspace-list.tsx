@@ -30,7 +30,6 @@ export const ThinkSpaceList = ({ orgId, query }: ThinkSpaceListProps) => {
                 <h2 className="text-3xl">
                     {query.favorites ? "Favorite spaces" : "Team spaces"}
                 </h2>
-                {/* {JSON.stringify(data)} */}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5 mt-8 pb-10">
                     <NewSpaceButton orgId={orgId} disabled />
@@ -68,23 +67,30 @@ export const ThinkSpaceList = ({ orgId, query }: ThinkSpaceListProps) => {
             <h2 className="text-3xl">
                 {query.favorites ? "Favorite spaces" : "Team spaces"}
             </h2>
-            {/* {JSON.stringify(data)} */}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5 mt-8 pb-10">
                 <NewSpaceButton orgId={orgId} />
-                {data?.map((space) => (
-                    <SpaceCard
-                        key={space._id}
-                        id={space._id}
-                        title={space.title}
-                        imageUrl={space.imageUrl}
-                        authorId={space.authorId}
-                        authorName={space.authorName}
-                        createdAt={space._creationTime}
-                        orgId={space.orgId}
-                        isFavorite={space.isFavorite}
-                    />
-                ))}
+                {data?.map((space) => {
+                    console.log("SPACE--->", space)
+                    // Only render SpaceCard if space has authorName and other required properties
+                    if ('authorName' in space && 'title' in space && 'imageUrl' in space && 'authorId' in space) {
+                        return (
+                            <SpaceCard
+                                key={space._id}
+                                id={space._id}
+                                title={space.title}
+                                imageUrl={space.imageUrl}
+                                authorId={space.authorId}
+                                authorName={space.authorName}
+                                createdAt={space._creationTime}
+                                orgId={space.orgId}
+                                isFavorite={space.isFavorite}
+                            />
+                        )
+                    }
+                    // Optionally, render nothing or a fallback for userFavorites type
+                    return null;
+                })}
             </div>
         </div>
     )
